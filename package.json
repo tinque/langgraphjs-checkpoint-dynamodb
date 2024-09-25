@@ -1,0 +1,43 @@
+{
+  "name": "@researchwiseai/langgraphjs-checkpoint-dynamodb",
+  "version": "0.1.0",
+  "description": "Implementation of a LangGraph.js CheckpointSaver that uses a AWS's DynamoDB",
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/esm/index.d.ts",
+  "exports": {
+    ".": {
+      "require": "./dist/cjs/index.js",
+      "import": "./dist/esm/index.js",
+      "types": "./dist/esm/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "bun run build:esm && bun run build:cjs",
+    "build:esm": "tsc --project tsconfig.esm.json",
+    "build:cjs": "tsc --project tsconfig.cjs.json",
+    "clean": "rimraf dist",
+    "test": "bun test",
+    "lint": "eslint 'src/**/*.{ts,tsx}'",
+    "format": "prettier --write 'src/**/*.{ts,tsx}'"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.11.1",
+    "@types/bun": "latest",
+    "@typescript-eslint/eslint-plugin": "^8.7.0",
+    "@typescript-eslint/parser": "^8.7.0",
+    "eslint": "^9.11.1",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.2.1",
+    "globals": "^15.9.0",
+    "prettier": "^3.3.3",
+    "rimraf": "^6.0.1",
+    "typescript-eslint": "^8.7.0"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  }
+}

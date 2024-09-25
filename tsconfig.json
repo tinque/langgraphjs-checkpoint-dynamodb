@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "moduleResolution": "Node",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
+    "rootDir": "./src",
+    "preserveSymlinks": true,
+    "noEmit": true // Prevent emitting when using this config directly
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
+}

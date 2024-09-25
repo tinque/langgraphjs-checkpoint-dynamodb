@@ -1,0 +1,20 @@
+// tsconfig.cjs.json
+{
+    "extends": "./tsconfig.json",
+    "compilerOptions": {
+        "outDir": "./dist/cjs",
+        "module": "CommonJS",
+        "target": "ES2022",
+        "declaration": true,
+        "declarationDir": "./dist/cjs",
+        "sourceMap": true,
+        "moduleResolution": "Node",
+        "importHelpers": true,
+        "noEmit": false,
+        "rootDir": "./src",
+        "preserveSymlinks": true
+    },
+    "include": ["src/**/*"],
+    "exclude": ["node_modules", "dist", "**/__tests__/**"]
+  }
+  

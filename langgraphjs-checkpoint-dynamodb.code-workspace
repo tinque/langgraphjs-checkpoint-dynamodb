@@ -1,0 +1,111 @@
+{
+    "folders": [
+      {
+        "path": "."
+      }
+    ],
+    "settings": {
+      // **Editor Settings**
+      "editor.tabSize": 4,
+      "editor.formatOnSave": true,
+      "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": "explicit"
+      },
+  
+      // **TypeScript Settings**
+      "typescript.tsdk": "node_modules/typescript/lib",
+      "typescript.enablePromptUseWorkspaceTsdk": true,
+  
+      // **ESLint Settings**
+      "eslint.validate": ["typescript", "typescriptreact"],
+  
+      // **Prettier Settings**
+      "prettier.requireConfig": true,
+  
+      // **Bun Integration**
+      "bun.languageServer.enabled": true,
+  
+      // **Files and Paths**
+      "files.exclude": {
+        "**/node_modules": true,
+        "**/dist": true
+      },
+      "search.exclude": {
+        "**/node_modules": true,
+        "**/dist": true
+      }
+    },
+    "tasks": {
+      "version": "2.0.0",
+      "tasks": [
+        {
+          "label": "Clean",
+          "type": "shell",
+          "command": "bun",
+          "args": ["run", "clean"],
+          "group": "build",
+          "problemMatcher": []
+        },
+        {
+          "label": "Build",
+          "type": "shell",
+          "command": "bun",
+          "args": ["run", "build"],
+          "group": "build",
+          "dependsOn": "Clean",
+          "problemMatcher": []
+        },
+        {
+          "label": "Test",
+          "type": "shell",
+          "command": "bun",
+          "args": ["run", "test"],
+          "group": "test",
+          "problemMatcher": []
+        },
+        {
+          "label": "Lint",
+          "type": "shell",
+          "command": "bun",
+          "args": ["run", "lint"],
+          "group": "build",
+          "problemMatcher": []
+        },
+        {
+          "label": "Format",
+          "type": "shell",
+          "command": "bun",
+          "args": ["run", "format"],
+          "group": "build",
+          "problemMatcher": []
+        }
+      ]
+    },
+    "launch": {
+      "version": "0.2.0",
+      "configurations": [
+        {
+          "name": "Launch Program",
+          "type": "node",
+          "request": "launch",
+          "program": "${workspaceFolder}/src/index.ts",
+          "preLaunchTask": "Build",
+          "outFiles": ["${workspaceFolder}/dist/esm/**/*.js"],
+          "cwd": "${workspaceFolder}",
+          "console": "integratedTerminal",
+          "internalConsoleOptions": "neverOpen",
+          "skipFiles": ["<node_internals>/**"],
+          "runtimeExecutable": "bun"
+        }
+      ]
+    },
+    "extensions": {
+      "recommendations": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "ms-vscode.vscode-typescript-next",
+        "bun-lang.bun",
+      ]
+    }
+  }
+  
