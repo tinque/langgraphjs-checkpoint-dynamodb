@@ -4,8 +4,8 @@ export interface CheckpointItem {
     checkpoint_id: string;
     parent_checkpoint_id?: string;
     type: string;
-    checkpoint: Uint8Array<ArrayBufferLike>;
-    metadata: Uint8Array<ArrayBufferLike>;
+    checkpoint: Uint8Array;
+    metadata: Uint8Array;
 }
 
 export interface WriteItem {
@@ -16,7 +16,7 @@ export interface WriteItem {
     idx: number;
     channel: string;
     type: string;
-    value: Uint8Array<ArrayBufferLike>;
+    value: Uint8Array;
 }
 
 export interface ValidatedConfigurable {
