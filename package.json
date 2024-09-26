@@ -39,5 +39,11 @@
   },
   "peerDependencies": {
     "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.658.0",
+    "@aws-sdk/lib-dynamodb": "^3.658.0",
+    "@langchain/core": "^0.3.3",
+    "@langchain/langgraph-checkpoint": "^0.0.7"
   }
 }
