@@ -11,7 +11,8 @@ import {
     type CheckpointListOptions,
     type PendingWrite,
 } from '@langchain/langgraph-checkpoint';
-import type { ValidatedConfigurable, CheckpointItem, WriteItem } from './types';
+import type { ValidatedConfigurable, CheckpointItem } from './types';
+import { DynamoDBWriteItem, Write } from './write';
 
 export class DynamoDBSaver extends BaseCheckpointSaver {
     private client: DynamoDBClient;
@@ -86,15 +87,16 @@ export class DynamoDBSaver extends BaseCheckpointSaver {
             TableName: this.writesTableName,
             KeyConditionExpression: 'partition_key = :partition_key',
             ExpressionAttributeValues: {
-                ':partition_key': `${item.thread_id}:${item.checkpoint_id}:${item.checkpoint_ns}`,
+                ':partition_key': Write.getPartitionKey(item),
             },
         });
 
         const pendingWrites: CheckpointPendingWrite[] = [];
         if (writesResult.Items) {
-            for (const writeItem of writesResult.Items as WriteItem[]) {
-                const value = await this.serde.loadsTyped(writeItem.type, writeItem.value);
-                pendingWrites.push([writeItem.task_id, writeItem.channel, value]);
+            for (const writeItem of writesResult.Items as DynamoDBWriteItem[]) {
+                const write = Write.fromDynamoDBItem(writeItem);
+                const value = await this.serde.loadsTyped(write.type, write.value);
+                pendingWrites.push([write.task_id, write.channel, value]);
             }
         }
 
@@ -230,7 +232,7 @@ export class DynamoDBSaver extends BaseCheckpointSaver {
 
         const writeItems = writes.map((write, idx) => {
             const [type, serializedValue] = this.serde.dumpsTyped(write[1]);
-            const item: WriteItem = {
+            const item = new Write({
                 thread_id,
                 checkpoint_ns,
                 checkpoint_id,
@@ -239,10 +241,11 @@ export class DynamoDBSaver extends BaseCheckpointSaver {
                 channel: write[0],
                 type,
                 value: serializedValue,
-            };
+            });
+
             return {
                 PutRequest: {
-                    Item: item,
+                    Item: item.toDynamoDBItem(),
                 },
             };
         });
@@ -260,6 +263,18 @@ export class DynamoDBSaver extends BaseCheckpointSaver {
                 },
             });
         }
+    }
+
+    private getWritePartitionKey(item: {
+        thread_id: string;
+        checkpoint_id: string;
+        checkpoint_ns: string;
+    }): string {
+        return `${item.thread_id}:${item.checkpoint_id}:${item.checkpoint_ns}`;
+    }
+
+    private getWriteSortKey(item: { task_id: string; idx: number }): string {
+        return `${item.task_id}:${item.idx}`;
     }
 
     private validateConfigurable(

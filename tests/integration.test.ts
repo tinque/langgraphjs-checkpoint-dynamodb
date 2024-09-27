@@ -19,6 +19,19 @@ async function waitForTableActive(client: DynamoDBClient, tableName: string) {
     }
 }
 
+async function waitForTableDeleted(client: DynamoDBClient, tableName: string) {
+    while (true) {
+        try {
+            await client.send(new DescribeTableCommand({ TableName: tableName }));
+        } catch (e) {
+            if (e.name === 'ResourceNotFoundException') {
+                break;
+            }
+        }
+        await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+}
+
 describe('DynamoDBSaver', () => {
     const checkpointsTableName = 'checkpoints';
     const writesTableName = 'writes';
@@ -48,6 +61,7 @@ describe('DynamoDBSaver', () => {
                         { AttributeName: 'thread_id', AttributeType: 'S' },
                         { AttributeName: 'checkpoint_id', AttributeType: 'S' },
                     ],
+                    BillingMode: 'PAY_PER_REQUEST',
                 })
             );
 
@@ -62,6 +76,7 @@ describe('DynamoDBSaver', () => {
                         { AttributeName: 'partition_key', AttributeType: 'S' },
                         { AttributeName: 'sort_key', AttributeType: 'S' },
                     ],
+                    BillingMode: 'PAY_PER_REQUEST',
                 })
             );
 
@@ -79,6 +94,15 @@ describe('DynamoDBSaver', () => {
                     TableName: checkpointsTableName,
                 })
             );
+
+            await client.send(
+                new DeleteTableCommand({
+                    TableName: writesTableName,
+                })
+            );
+
+            await waitForTableDeleted(client, checkpointsTableName);
+            await waitForTableDeleted(client, writesTableName);
         });
 
         it('should save and load checkpoints', async () => {
@@ -114,17 +138,59 @@ describe('DynamoDBSaver', () => {
             expect(loadedCheckpoint?.checkpoint.id).toEqual(checkpoint.id);
         });
 
-        // it('should save and load writes', async () => {
-        //     const write = {
-        //         id: 'test',
-        //         value: 'test',
-        //     };
+        it('should save and load writes', async () => {
+            const checkpoint = {
+                v: 1,
+                id: uuid6(-1),
+                ts: '2024-04-19T17:19:07.952Z',
+                channel_values: {
+                    someKey1: 'someValue1',
+                },
+                channel_versions: {
+                    someKey2: 1,
+                },
+                versions_seen: {
+                    someKey3: {
+                        someKey4: 1,
+                    },
+                },
+                pending_sends: [],
+            };
 
-        //     await saver.saveWrite(write);
+            const writes = {
+                writes: [
+                    {
+                        id: '1',
+                        v: 1,
+                        ts: '2024-04-19T17:19:07.952Z',
+                        channel_values: {
+                            someKey1: 'someValue1',
+                        },
+                        channel_versions: {
+                            someKey2: 1,
+                        },
+                        versions_seen: {
+                            someKey3: {
+                                someKey4: 1,
+                            },
+                        },
+                        pending_sends: [],
+                    },
+                ],
+            };
 
-        //     const loadedWrite = await saver.loadWrite(write.id);
+            await saver.put({ configurable: { thread_id: '1' } }, checkpoint, {
+                source: 'update',
+                step: -1,
+                writes,
+            } as CheckpointMetadata);
 
-        //     expect(loadedWrite).toEqual(write);
-        // });
+            const loadedWrites = await saver.getTuple({
+                configurable: { thread_id: '1' },
+            });
+
+            expect(loadedWrites).not.toBeUndefined();
+            expect(loadedWrites?.metadata?.writes).toEqual(writes);
+        });
     });
 });
