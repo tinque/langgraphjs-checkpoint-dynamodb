@@ -19,6 +19,7 @@ runs:
       uses: actions/setup-node@v3
       with:
         node-version: ${{ inputs.node-version }}
+        registry-url: "https://registry.npmjs.org"
 
     - name: Set up Bun
       uses: oven-sh/setup-bun@v1
