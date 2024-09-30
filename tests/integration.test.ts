@@ -69,12 +69,15 @@ describe('DynamoDBSaver', () => {
                 new CreateTableCommand({
                     TableName: writesTableName,
                     KeySchema: [
-                        { AttributeName: 'partition_key', KeyType: 'HASH' }, // Partition key
-                        { AttributeName: 'sort_key', KeyType: 'RANGE' }, // Sort key
+                        { AttributeName: 'thread_id_checkpoint_id_checkpoint_ns', KeyType: 'HASH' }, // Partition key
+                        { AttributeName: 'task_id_idx', KeyType: 'RANGE' }, // Sort key
                     ],
                     AttributeDefinitions: [
-                        { AttributeName: 'partition_key', AttributeType: 'S' },
-                        { AttributeName: 'sort_key', AttributeType: 'S' },
+                        {
+                            AttributeName: 'thread_id_checkpoint_id_checkpoint_ns',
+                            AttributeType: 'S',
+                        },
+                        { AttributeName: 'task_id_idx', AttributeType: 'S' },
                     ],
                     BillingMode: 'PAY_PER_REQUEST',
                 })

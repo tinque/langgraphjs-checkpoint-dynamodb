@@ -85,9 +85,10 @@ export class DynamoDBSaver extends BaseCheckpointSaver {
         // Fetch pending writes
         const writesResult = await this.docClient.query({
             TableName: this.writesTableName,
-            KeyConditionExpression: 'partition_key = :partition_key',
+            KeyConditionExpression:
+                'thread_id_checkpoint_id_checkpoint_ns = :thread_id_checkpoint_id_checkpoint_ns',
             ExpressionAttributeValues: {
-                ':partition_key': Write.getPartitionKey(item),
+                ':thread_id_checkpoint_id_checkpoint_ns': Write.getPartitionKey(item),
             },
         });
 

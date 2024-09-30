@@ -10,8 +10,8 @@ export interface WriteProperties {
 }
 
 export interface DynamoDBWriteItem {
-    partition_key: string;
-    sort_key: string;
+    thread_id_checkpoint_id_checkpoint_ns: string;
+    task_id_idx: string;
     channel: string;
     type: string;
     value: Uint8Array;
@@ -49,12 +49,12 @@ export class Write {
 
     toDynamoDBItem(): DynamoDBWriteItem {
         return {
-            partition_key: Write.getPartitionKey({
+            thread_id_checkpoint_id_checkpoint_ns: Write.getPartitionKey({
                 thread_id: this.thread_id,
                 checkpoint_id: this.checkpoint_id,
                 checkpoint_ns: this.checkpoint_ns,
             }),
-            sort_key: [this.task_id, this.idx].join(Write.separator()),
+            task_id_idx: [this.task_id, this.idx].join(Write.separator()),
             channel: this.channel,
             type: this.type,
             value: this.value,
@@ -62,14 +62,15 @@ export class Write {
     }
 
     static fromDynamoDBItem({
-        partition_key,
-        sort_key,
+        thread_id_checkpoint_id_checkpoint_ns,
+        task_id_idx,
         channel,
         type,
         value,
     }: DynamoDBWriteItem): Write {
-        const [thread_id, checkpoint_id, checkpoint_ns] = partition_key.split(this.separator());
-        const [task_id, idx] = sort_key.split(this.separator());
+        const [thread_id, checkpoint_id, checkpoint_ns] =
+            thread_id_checkpoint_id_checkpoint_ns.split(this.separator());
+        const [task_id, idx] = task_id_idx.split(this.separator());
         return new Write({
             thread_id,
             checkpoint_ns,
