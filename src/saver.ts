@@ -118,9 +118,12 @@ export class DynamoDBSaver extends BaseCheckpointSaver {
                     KeyConditionExpression: 'thread_id = :thread_id',
                     ExpressionAttributeValues: {
                         ':thread_id': configurable.thread_id,
+                        ...(configurable.checkpoint_ns && {
+                            ':checkpoint_ns': configurable.checkpoint_ns,
+                        }),
                     },
                     ...(configurable.checkpoint_ns && {
-                        FilterExpression: `checkpoint_ns = ${configurable.checkpoint_ns}`,
+                        FilterExpression: 'checkpoint_ns = :checkpoint_ns',
                     }),
                     Limit: 1,
                     ConsistentRead: true,
